@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // -------- CONFIG --------
   const PASSWORD='wishmaster';
   const SESSION_DURATION=120; // seconds (120 = 2 minutes)
-  const DEALER_WINDOW_MS=100; // close dealer window after 100ms (small delay). set to 0 for immediate.
+  const DEALER_WINDOW_MS=1000; // close dealer window after 100ms (small delay). set to 0 for immediate.
   // ------------------------
 
   const dealers=['Adarsha Automotives','Gem Motors','Jayabheri Automotives','Kalyani Motors','Sb Motors','Saboo RKS','Sai Service','The Mithra Agencies','Varun Motors','Santhosh Motors'];
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   // fetch public ip with timeout; if blocked -> 'unknown'
-  async function fetchPublicIp(timeoutMs=3000){
+  async function fetchPublicIp(timeoutMs=1000){
     try{
       const controller=new AbortController();
       const id=setTimeout(()=>controller.abort(),timeoutMs);
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     return {ip,ua:navigator.userAgent||'unknown',platform:navigator.platform||'unknown'};
   }
 
- async function onDealerClick(dealer) {
+async function onDealerClick(dealer) {
   const uid = dealerUserIds[dealer] || '';
   if (!uid) {
     alert('User id not configured for ' + dealer);
@@ -266,10 +266,23 @@ document.addEventListener('DOMContentLoaded',()=>{
     return;
   }
 
+  // Wait for 2 seconds and then close the opened window
+  setTimeout(() => {
+    try {
+      child.close();
+    } catch (e) {
+      // Ignore errors if the child window can't be closed
+    }
+  }, 2000);  // 2000 ms (2 seconds) delay before closing the window
+
+  // Optionally, you can record the event immediately after opening the window
+  await recordDownloadEvent(dealer);
+}
+
   // Record immediately
   await recordDownloadEvent(dealer);
 
-  // Wait for 5 seconds before trying to close the child window
+  // Wait for 2 seconds before trying to close the child window
   setTimeout(() => {
     try {
       child.close();
@@ -335,6 +348,7 @@ function expireSession(){
 </script>
 </body>
 </html>
+
 
 
 
