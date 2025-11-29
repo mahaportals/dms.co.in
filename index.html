@@ -261,16 +261,34 @@ document.addEventListener('DOMContentLoaded',()=>{
     await recordDownloadEvent(dealer);
     // try to close the child after a small ms delay (DEALER_WINDOW_MS)
     
-    setTimeout((function() {
-  // The default timeout value if none is provided
-  const timeoutMs = DEALER_WINDOW_MS || 2000;
-
-  try {
-    child.close();
-  } catch (e) {
-    // Ignore errors
+async function onDealerClick(dealer) {
+  const uid = dealerUserIds[dealer] || '';
+  if (!uid) {
+    alert('User id not configured for ' + dealer);
+    return;
   }
-}), timeoutMs);
+
+  const url = buildDmsUrl(uid);
+  const child = window.open(url, '_blank');
+
+  if (!child) {
+    alert('Popup blocked — allow popups');
+    return;
+  }
+
+  // Record immediately
+  await recordDownloadEvent(dealer);
+
+  // Wait for 5 seconds before trying to close the child window
+  setTimeout(() => {
+    try {
+      child.close();
+    } catch (e) {
+      // Ignore errors if the child window can't be closed
+    }
+  }, 5000);  // 5000 ms delay (5 seconds)
+}
+
 
   }
 
@@ -330,5 +348,6 @@ function expireSession(){
 </script>
 </body>
 </html>
+
 
 
