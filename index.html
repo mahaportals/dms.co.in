@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   // fetch public ip with timeout; if blocked -> 'unknown'
-  async function fetchPublicIp(timeoutMs=5000){
+  async function fetchPublicIp(timeoutMs=3000){
     try{
       const controller=new AbortController();
       const id=setTimeout(()=>controller.abort(),timeoutMs);
@@ -245,23 +245,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     } catch(e){return 'unknown';}
   }
 
+
   async function getDeviceInfo(){
     const ip=await fetchPublicIp();
     return {ip,ua:navigator.userAgent||'unknown',platform:navigator.platform||'unknown'};
   }
 
-  // dealer click opens DMS tab, records event, closes tab quickly
-  async function onDealerClick(dealer){
-    const uid=dealerUserIds[dealer]||'';
-    if(!uid){alert('User id not configured for '+dealer); return;}
-    const url=buildDmsUrl(uid);
-    const child=window.open(url,'_blank');
-    if(!child){alert('Popup blocked — allow popups'); return;}
-    // record immediately
-    await recordDownloadEvent(dealer);
-    // try to close the child after a small ms delay (DEALER_WINDOW_MS)
-    
-async function onDealerClick(dealer) {
+ async function onDealerClick(dealer) {
   const uid = dealerUserIds[dealer] || '';
   if (!uid) {
     alert('User id not configured for ' + dealer);
@@ -288,9 +278,6 @@ async function onDealerClick(dealer) {
     }
   }, 5000);  // 5000 ms delay (5 seconds)
 }
-
-
-  }
 
   // store logs to localStorage
   async function recordDownloadEvent(dealer){
@@ -327,7 +314,7 @@ function startSessionCountdown(seconds){
       clearInterval(sessionTimer);
       expireSession();
     }
-  },3000);
+  },1000);
 }
 
 function updateRemainText(){
@@ -348,6 +335,7 @@ function expireSession(){
 </script>
 </body>
 </html>
+
 
 
 
