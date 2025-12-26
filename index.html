@@ -65,6 +65,28 @@
     #portalCard {
       position: relative;
     }
+.warning-banner {
+  overflow: hidden;
+  background: #fff3cd;
+  border: 1px solid #f5c2c7;
+  border-radius: 10px;
+  padding: 8px 0;
+  position: relative;
+}
+
+.warning-text {
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #8a1c1c;
+  animation: scroll-warning 30s linear infinite;
+}
+
+@keyframes scroll-warning {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
 
     /* Knowledge Tools button placed top-left */
     .ktools-btn {
@@ -87,18 +109,16 @@
       gap: 12px;
       margin-top: 14px;
     }
-
-    .dealer-btn {
-      padding: 12px 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
-      cursor: pointer;
-      min-width: 220px;
-      text-align: center;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
+.dealer-btn {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
 
     .dealer-btn:hover {
       transform: scale(1.05);
@@ -190,8 +210,8 @@
       <div class="maha-logo">MAHA</div>
     </div>
     <h2>PLEASE CONNECT CISCO VPN FOR LOGIN</h2>
-    <p class="muted small">Cisco VPN must be connected before login.</p>
-    <button id="vpnBtn">I have connected VPN — Continue</button>
+    <p class="muted small">VPN must be connected before login.</p>
+    <button id="vpnBtn">Login to DMS portal</button>
   </div>
 
   <!-- Login Card -->
@@ -216,9 +236,14 @@
     <p class="muted">Logged in at: <span id="loginTime"></span></p>
     <p class="muted small">Session valid for <span id="remain">0:00</span></p>
 
-    <div class="caution">
-      <strong>Warning:</strong> Engaging in fraudulent activities will result in severe consequences. Please be aware that such actions will be met with strict penalties and legal action will be taken against those involved.
-    </div>
+<div class="warning-banner">
+  <div class="warning-text">
+    ⚠️ Warning: Engaging in fraudulent activities will result in severe consequences. 
+    Please be aware that such actions will be met with strict penalties and legal action 
+    will be taken against those involved.
+  </div>
+</div>
+
 
     <h3 style="margin-top: 18px">Dealers — click to open DMS ("Stay Alert, Stay Safe: Don't Fall Prey to Fraud!")</h3>
     <div class="dealers" id="dealersList"></div>
@@ -234,12 +259,24 @@
 
       // -------- CONFIG --------
       const PASSWORD = 'wishmaster';
-      const SESSION_DURATION = 120; // seconds (120 = 2 minutes)
+      const SESSION_DURATION = 60; // seconds (60 = 1 minutes)
       const DEALER_WINDOW_MS = 1000; // close dealer window after 100ms (small delay). set to 0 for immediate.
       // ------------------------
 
-      const dealers = ['Adarsha Automotives', 'Gem Motors', 'Jayabheri Automotives', 'Kalyani Motors', 'Sb Motors', 'Saboo RKS', 'Sai Service', 'The Mithra Agencies', 'Varun Motors', 'Santhosh Motors'];
-      const dealerUserIds = {'Adarsha Automotives': 'abc', 'Gem Motors': 'abcd', 'Jayabheri Automotives': 'mprabhu.gtk', 'Kalyani Motors': 'abce', 'Saboo RKS': 'abcf', 'Sai Service': 'abcg', 'The Mithra Agencies': 'abch', 'Varun Motors': 'abcc', 'Santhosh Motors': 'abci'};
+const dealers = ['Adarsha Automotives', 'Novelty Reddy & Reddy', 'Jayabheri Automotives', 'Kalyani Motors', 'Sb Motors', 'Saboo RKS', 'Sai Service', 'The Mithra Agencies', 'Varun Motors', 'Santhosh Motors', 'Jayalakshmi Motors'];
+const dealerUserIds = {
+  'Adarsha Automotives': 'abc',
+  'Novelty Reddy & Reddy': 'wty.bvm',
+  'Jayabheri Automotives': 'dhanunjaya.cp',
+  'Kalyani Motors': 'abce',
+  'Sb Motors': 'kiran.002',
+  'Saboo RKS': 'abcf',
+  'Sai Service': 'abcg',
+  'The Mithra Agencies': 'mithrakhm.eo',
+  'Varun Motors': 'abcc',
+  'Santhosh Motors': 'mouli.sup',
+  'Jayalakshmi Motors': 'amarnath.tab04'
+};
 
       let remainingSeconds, sessionTimer;
 
@@ -268,7 +305,7 @@ async function isPlanetVpnConnected() {
     // Known PlanetVPN IP ranges
     const vpnPatterns = [
       /^185\./, /^45\./, /^146\./, /^172\./, /^37\./, /^51\./, /^170\./, /^62\./,
-      /^89\./, /^95\./, /^38\./, /^213\./, /^216\./, /^15\./, /^198\./, /^109\./, /^93\./
+      /^89\./, /^95\./, /^38\./, /^213\./, /^216\./, /^15\./, /^198\./, /^109\./, /^149\./, /^57\./, /^93\./
     ];
 
     // Check if the IP matches any of the VPN patterns
@@ -286,7 +323,7 @@ vpnBtn.addEventListener('click', async () => {
 
   // If VPN is not connected, show an alert and stop further action
   if (!isConnected) {
-    alert("PlanetVPN is NOT connected.\nPlease connect PlanetVPN and contact admin if issue continues.");
+    alert("VPN is NOT connected.\nPlease connect VPN and contact maha if issue continues.");
     return;
   }
 
