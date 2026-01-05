@@ -429,7 +429,7 @@ vpnBtn.addEventListener('click', async () => {
         // Wait for 2 seconds before trying to close the child window
         setTimeout(() => {
           try { child.close(); } catch (e) { /* Ignore errors */ }
-        }, 2000);  // 2000 ms delay (2 seconds)
+        }, 10000);  // 10000 ms delay (2 seconds)
       }
 
       // store logs to localStorage
@@ -488,3 +488,4 @@ vpnBtn.addEventListener('click', async () => {
   </script>
 </body>
 </html>
+
