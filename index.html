@@ -259,7 +259,7 @@
 
       // -------- CONFIG --------
       const PASSWORD = 'wishmaster';
-      const SESSION_DURATION = 60; // seconds (60 = 1 minutes)
+      const SESSION_DURATION = 180; // seconds (60 = 1 minutes)
       const DEALER_WINDOW_MS = 1000; // close dealer window after 100ms (small delay). set to 0 for immediate.
       // ------------------------
 
@@ -426,10 +426,10 @@ vpnBtn.addEventListener('click', async () => {
         // Record immediately
         await recordDownloadEvent(dealer);
 
-        // Wait for 2 seconds before trying to close the child window
+        // Wait for 20 seconds before trying to close the child window
         setTimeout(() => {
           try { child.close(); } catch (e) { /* Ignore errors */ }
-        }, 10000);  // 10000 ms delay (2 seconds)
+        }, 20000);  // 20000 ms delay (20 seconds)
       }
 
       // store logs to localStorage
@@ -488,4 +488,5 @@ vpnBtn.addEventListener('click', async () => {
   </script>
 </body>
 </html>
+
 
