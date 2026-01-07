@@ -259,8 +259,11 @@
 
       // -------- CONFIG --------
       const PASSWORD = 'wishmaster';
-      const SESSION_DURATION = 180; // seconds (60 = 1 minutes)
+      const SESSION_DURATION = 60; // seconds (60 = 1 minutes)
       const DEALER_WINDOW_MS = 1000; // close dealer window after 100ms (small delay). set to 0 for immediate.
+	let failedAttempts = 0;
+	let lockUntil = null;
+
       // ------------------------
 
 const dealers = ['Adarsha Automotives', 'Novelty Reddy & Reddy', 'Jayabheri Automotives', 'Kalyani Motors', 'Sb Motors', 'Saboo RKS', 'Sai Service', 'The Mithra Agencies', 'Varun Motors', 'Santhosh Motors', 'Jayalakshmi Motors'];
@@ -350,19 +353,39 @@ vpnBtn.addEventListener('click', async () => {
       });
 
       // Login button
-      loginBtn.addEventListener('click', async () => {
-        if (pwdInput.value === PASSWORD) {
-          loginCard.classList.add('hidden');
-          portalCard.classList.remove('hidden');
-          loginTimeEl.textContent = new Date().toLocaleString();
-          renderDealers();
-          renderDownloads();
-          startSessionCountdown(SESSION_DURATION);
-        } else {
-          alert('Incorrect password');
-          pwdInput.focus();
-        }
-      });
+loginBtn.addEventListener('click', async () => {
+
+  if (lockUntil && Date.now() < lockUntil) {
+    const mins = Math.ceil((lockUntil - Date.now()) / 60000);
+    alert(`Too many wrong passwords. Try again in ${mins} minute(s).`);
+    return;
+  }
+
+  if (pwdInput.value === PASSWORD) {
+    failedAttempts = 0;
+    lockUntil = null;
+
+    loginCard.classList.add('hidden');
+    portalCard.classList.remove('hidden');
+    loginTimeEl.textContent = new Date().toLocaleString();
+    renderDealers();
+    renderDownloads();
+    startSessionCountdown(SESSION_DURATION);
+  } else {
+    failedAttempts++;
+
+    if (failedAttempts >= 3) {
+      lockUntil = Date.now() + 5 * 60 * 1000;
+      alert("Too many wrong attempts — locked for 5 minutes.");
+    } else {
+      alert("Incorrect password");
+    }
+
+    pwdInput.value = "";
+    pwdInput.focus();
+  }
+});
+
 
       // Knowledge Tools button
       ktoolsBtn.addEventListener('click', () => {
@@ -426,10 +449,10 @@ vpnBtn.addEventListener('click', async () => {
         // Record immediately
         await recordDownloadEvent(dealer);
 
-        // Wait for 20 seconds before trying to close the child window
+        // Wait for 2 seconds before trying to close the child window
         setTimeout(() => {
           try { child.close(); } catch (e) { /* Ignore errors */ }
-        }, 20000);  // 20000 ms delay (20 seconds)
+        }, 10000);  // 10000 ms delay (2 seconds)
       }
 
       // store logs to localStorage
@@ -476,13 +499,24 @@ vpnBtn.addEventListener('click', async () => {
         remainEl.textContent = mm + ':' + ss;
       }
 
-      function expireSession() {
-        try {
-          window.open('', '_self');
-          window.close();
-          portalCard.innerHTML = '<div style="padding: 40px; font-family: Inter; text-align: center; font-size: 18px;">Session expired — please re-open the portal.</div>';
-        } catch (e) {}
-      }
+function expireSession() {
+  try {
+    portalCard.innerHTML =
+      '<div style="padding:40px;text-align:center;font-size:18px;">Session expired — closing…</div>';
+
+    // Try to close tab
+    window.open('', '_self').close();
+
+    // Kiosk fallback
+    setTimeout(() => {
+      window.location.href = "about:blank";
+    }, 1200);
+  } catch (e) {}
+}
+// Force browser zoom to 100% on every device
+try {
+  document.body.style.zoom = "100%";
+} catch (e) {}
 
     });
   </script>
