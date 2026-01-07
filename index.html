@@ -23,15 +23,22 @@
       color: #06202b;
     }
 
-    .card {
-      background: var(--glass);
-      backdrop-filter: blur(6px);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.55);
-      transition: all 0.3s ease;
-      text-align: center;
-    }
+.card {
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.55);
+  transition: all 0.3s ease;
+  text-align: center;
+
+  max-width: 520px;     /* login & VPN look perfect */
+  width: 95%;
+  box-sizing: border-box;
+
+  max-height: 88vh;
+  overflow-y: auto;
+}
 
     .hidden {
       display: none;
@@ -62,9 +69,11 @@
     }
 
     /* Portal specific */
-    #portalCard {
-      position: relative;
-    }
+@media (min-width: 1600px) {
+  #portalCard {
+    max-width: 1400px;
+  }
+}
 .warning-banner {
   overflow: hidden;
   background: #fff3cd;
@@ -141,11 +150,15 @@
       font-size: 13px;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+table {
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+.dealers {
+  justify-content: center;
+}
+
 
     th, td {
       padding: 8px;
@@ -259,7 +272,7 @@
 
       // -------- CONFIG --------
       const PASSWORD = 'wishmaster';
-      const SESSION_DURATION = 60; // seconds (60 = 1 minutes)
+      const SESSION_DURATION = 120; // seconds (60 = 1 minutes)
       const DEALER_WINDOW_MS = 1000; // close dealer window after 100ms (small delay). set to 0 for immediate.
 	let failedAttempts = 0;
 	let lockUntil = null;
@@ -326,7 +339,7 @@ vpnBtn.addEventListener('click', async () => {
 
   // If VPN is not connected, show an alert and stop further action
   if (!isConnected) {
-    alert("VPN is NOT connected.\nPlease connect VPN and contact maha if issue continues.");
+    alert("VPN is NOT connected.\nPlease connect VPN or contact maha if issue continues.");
     return;
   }
 
@@ -375,8 +388,8 @@ loginBtn.addEventListener('click', async () => {
     failedAttempts++;
 
     if (failedAttempts >= 3) {
-      lockUntil = Date.now() + 5 * 60 * 1000;
-      alert("Too many wrong attempts — locked for 5 minutes.");
+      lockUntil = Date.now() + 10 * 60 * 1000;
+      alert("Too many wrong attempts — locked for 10 minutes.");
     } else {
       alert("Incorrect password");
     }
@@ -385,8 +398,7 @@ loginBtn.addEventListener('click', async () => {
     pwdInput.focus();
   }
 });
-
-
+		
       // Knowledge Tools button
       ktoolsBtn.addEventListener('click', () => {
         window.open('knowledge.html', '_blank');
