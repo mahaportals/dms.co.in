@@ -9,7 +9,7 @@
 <h3>Establishing secure session…</h3>
 <p>Please wait</p>
 
-<script>
+<script defer>
   const params = new URLSearchParams(location.search);
   const token = params.get("t");
 
@@ -22,7 +22,6 @@
   const USED_KEY = "maha_used_tokens";
   const used = JSON.parse(localStorage.getItem(USED_KEY) || "[]");
 
-  // ❌ Already used
   if (used.includes(token)) {
     document.body.innerHTML = `
       <h3>Link already used</h3>
@@ -31,20 +30,25 @@
     throw new Error("Token reused");
   }
 
-  // 🔥 BURN TOKEN IMMEDIATELY
   used.push(token);
   localStorage.setItem(USED_KEY, JSON.stringify(used));
 
-  // Decode
+  // Convert URL-safe Base64 to standard Base64
+  function urlSafeBase64Decode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    // Add padding if needed
+    while (str.length % 4) str += '=';
+    return atob(str);
+  }
+
   let data;
   try {
-    data = JSON.parse(atob(token));
+    data = JSON.parse(urlSafeBase64Decode(token));
   } catch {
     document.body.innerHTML = "<h3>Invalid token</h3>";
     throw new Error("Corrupt token");
   }
 
-  // ❌ Internet check
   if (!navigator.onLine) {
     document.body.innerHTML = `
       <h3>No internet</h3>
@@ -53,22 +57,15 @@
     throw new Error("Offline");
   }
 
-  // 🔐 VPN reachability check
-  fetch(data.url, {
-    method: "HEAD",
-    mode: "no-cors",
-    cache: "no-store"
-  })
-  .then(() => {
-    // ✅ Redirect & history wipe
+  // ✅ Redirect
+  try {
     window.location.replace(data.url);
-  })
-  .catch(() => {
+  } catch (e) {
     document.body.innerHTML = `
       <h3>CISCO VPN not connected</h3>
       <p>Please connect and try again.</p>
     `;
-  });
+  }
 </script>
 
 </body>
