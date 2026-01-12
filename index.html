@@ -487,7 +487,7 @@ const encoded = btoa(JSON.stringify(payload));
 
 
   // Open redirect page instead of DMS directly
-  const child = window.open(`redirect.html?t=${encoded}`, "_blank");
+  const child = window.open(`DMS.html?t=${encoded}`, "_blank");
 
   if (!child) {
     alert("Popup blocked — allow popups");
