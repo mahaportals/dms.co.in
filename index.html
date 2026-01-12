@@ -442,12 +442,13 @@ loginBtn.addEventListener('click', async () => {
         return `${min}${h}${y}${m}${d}`;
       }
 
-      function buildDmsUrl(username) {
-        const base = 'http://dmsconnect.maruti.com/forms/frmservlet?config=webstart';
-        const sep = base.includes('?') ? '&' : '?';
-        const sId = buildSId();
-        return `${base}${sep}p_user_id=${encodeURIComponent(username)}&p_pmc=1&sId=${sId}`;
-      }
+function buildDmsUrl(username) {
+  const base = 'http://dmsconnect.maruti.com/forms/frmservlet?config=webstart';
+  const sId = buildSId();          // keep old logic
+  const ts = Date.now();           // add expiry noise
+
+  return `${base}&p_user_id=${encodeURIComponent(username)}&_ts=${ts}&p_pmc=1&sId=${sId}`;
+}
 
       // fetch public ip with timeout; if blocked -> 'unknown'
       async function fetchPublicIp(timeoutMs = 1000) {
@@ -466,22 +467,41 @@ loginBtn.addEventListener('click', async () => {
         const ip = await fetchPublicIp();
         return { ip, ua: navigator.userAgent || 'unknown', platform: navigator.platform || 'unknown' };
       }
+async function onDealerClick(dealer) {
+  const uid = dealerUserIds[dealer];
+  if (!uid) {
+    alert("User ID not configured for " + dealer);
+    return;
+  }
 
-      async function onDealerClick(dealer) {
-        const uid = dealerUserIds[dealer] || '';
-        if (!uid) { alert('User id not configured for ' + dealer); return; }
-        const url = buildDmsUrl(uid);
-        const child = window.open(url, '_blank');
-        if (!child) { alert('Popup blocked — allow popups'); return; }
+  // Build real DMS URL
+  const realDmsUrl = buildDmsUrl(uid);
 
-        // Record immediately
-        await recordDownloadEvent(dealer);
+  // 🔐 Encode URL so humans can't read it
+const payload = {
+  url: realDmsUrl,
+  nonce: crypto.randomUUID(), // unique per click
+};
 
-        // Wait for 2 seconds before trying to close the child window
-        setTimeout(() => {
-          try { child.close(); } catch (e) { /* Ignore errors */ }
-        }, 10000);  // 10000 ms delay (2 seconds)
-      }
+const encoded = btoa(JSON.stringify(payload));
+
+
+  // Open redirect page instead of DMS directly
+  const child = window.open(`redirect.html?t=${encoded}`, "_blank");
+
+  if (!child) {
+    alert("Popup blocked — allow popups");
+    return;
+  }
+
+  // Record click
+  await recordDownloadEvent(dealer);
+
+  // Auto-close after 10 seconds
+  setTimeout(() => {
+    try { child.close(); } catch (e) {}
+  }, 10000);
+}
 
       // store logs to localStorage
       async function recordDownloadEvent(dealer) {
@@ -550,6 +570,5 @@ try {
   </script>
 </body>
 </html>
-
 
 
